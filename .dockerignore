@@ -1,0 +1,7 @@
+.gitignore
+.env*
+.eslintrc.js
+dist/
+docker-compose*
+Dockerfile
+README.md

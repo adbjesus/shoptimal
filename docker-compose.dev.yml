@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  postgres:
+    image: postgres:15.2
+    container_name: postgres
+    hostname: ${POSTGRES_HOST}
+    ports:
+      - 5432:5432
+    env_file: .env
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart-policy:
+      condition: none
+
+volumes:
+  postgres-data:

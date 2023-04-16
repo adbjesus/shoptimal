@@ -50,6 +50,8 @@ app.get('/shopping', async (req: Request, res: Response) => {
         },
     });
 
+    console.log(products);
+
     var cart: any[] = [];
     const session: MySession = req.session;
     if (session.cart) {
@@ -144,7 +146,7 @@ function costSingle(s: number, products: any[], travelCosts: number[][]) {
     return cost;
 }
 
-function optimize_route() {
+function optimize_route(cart: any[]) {
     const products = [
         {
             productId: 1,
@@ -159,7 +161,7 @@ function optimize_route() {
             quantity: 5,
             prices: {
                 1: 1.6,
-                2: 1.5,
+                2: 0.8,
             },
         }
     ];
@@ -173,6 +175,8 @@ function optimize_route() {
     console.log(ansCost);
     console.log(costSingle(1, products, travelCosts));
     console.log(costSingle(2, products, travelCosts));
+
+    return ansItems;
 }
 
 app.get('/route', async (req: Request, res: Response) => {
@@ -182,9 +186,7 @@ app.get('/route', async (req: Request, res: Response) => {
         cart = session.cart;
     }
 
-    var route: any[] = [];
-
-    optimize_route();
+    var route = optimize_route(cart);
 
     res.render('route', { cart: cart, route: route });
 });

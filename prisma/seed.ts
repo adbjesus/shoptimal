@@ -29,6 +29,21 @@ async function main() {
         },
     });
 
+    const noodles = await prisma.product.upsert({
+        where: {
+            fullname: {
+                name: 'Banzai Noodles Galinha',
+                brandId: cigala.id,
+            },
+        },
+        update: {},
+        create: {
+            name: 'Banzai Noodles Galinha',
+            brandId: cigala.id,
+            prices: {},
+        },
+    });
+
     await prisma.supermarketChain.upsert({
         where: {
             name: 'Continente',
@@ -60,6 +75,10 @@ async function main() {
                     {
                         price: 139,
                         productId: arroz.id,
+                    },
+                    {
+                        price: 119,
+                        productId: noodles.id,
                     },
                 ],
             }
@@ -98,6 +117,10 @@ async function main() {
                         price: 169,
                         productId: arroz.id,
                     },
+                    {
+                        price: 119,
+                        productId: noodles.id,
+                    },
                 ],
             }
         },
@@ -124,6 +147,10 @@ async function main() {
                     {
                         price: 169,
                         productId: arroz.id,
+                    },
+                    {
+                        price: 99,
+                        productId: noodles.id,
                     },
                 ],
             }
@@ -156,6 +183,10 @@ async function main() {
                     {
                         price: 169,
                         productId: arroz.id,
+                    },
+                    {
+                        price: 119,
+                        productId: noodles.id,
                     },
                 ],
             }

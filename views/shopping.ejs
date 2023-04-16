@@ -140,11 +140,13 @@
                     </thead>
                     <tbody>
                       <% products.forEach(function(product) { %>
-                        <th scope="row" style="vertical-align: middle;"><a href="#"><%= product.name %></a></th>
-                        <th scope="row" style="vertical-align: middle;"><a href="#"><%= product.brand.name %></a></th>
-                        <td style="vertical-align: middle;"><%= (product.prices[0].price / 100).toLocaleString("pt-PT", {style:"currency", currency:"EUR"}) %></td>
-                        <td style="vertical-align: middle;"><%= (product.prices.at(-1).price / 100).toLocaleString("pt-PT", {style:"currency", currency:"EUR"}) %></td>
-                        <td><button type="button" class="btn btn-primary" onclick="addToCart(<%= product.id %>)">Add to cart</button></td>
+                        <tr>
+                          <th scope="row" style="vertical-align: middle;"><a href="#"><%= product.name %></a></th>
+                          <th scope="row" style="vertical-align: middle;"><a href="#"><%= product.brand.name %></a></th>
+                          <td style="vertical-align: middle;"><%= (product.prices[0].price / 100).toLocaleString("pt-PT", {style:"currency", currency:"EUR"}) %></td>
+                          <td style="vertical-align: middle;"><%= (product.prices.at(-1).price / 100).toLocaleString("pt-PT", {style:"currency", currency:"EUR"}) %></td>
+                          <td><button type="button" class="btn btn-primary" onclick="addToCart(<%= product.id %>)">Add to cart</button></td>
+                        </tr>
                       <% }) %>
                     </tbody>
                   </table>

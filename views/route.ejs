@@ -93,7 +93,7 @@
   <main id="main" class="main">
 
     <div class="pagetitle">
-      <h1>Route</h1>
+      <h1>Route (predicted cost <%= (cost / 100).toLocaleString("pt-PT", {style:"currency", currency:"EUR"}) %>, including travel costs)</h1>
       <nav>
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="/Shopping">Shopping</a></li>
@@ -104,37 +104,76 @@
 
     <section class="section dashboard">
       <div class="row">
+        <!-- Left side columns -->
+        <div class="col-lg-8">
+
+          <!-- Recent Activity -->
+          <% route.forEach(function(leg) { %>
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title"><i class="bi bi-cart"></i> Go to <b><it><%= leg.location.chain.name %> <%= leg.location.name %></b></it> and buy the following products</h5>
+
+                <table class="table table-borderless datatable">
+                <thead>
+                <tr>
+                    <th scope="col">Product</th>
+                    <th scope="col">Brand</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Store</th>
+                </tr>
+                </thead>
+                  <tbody id="cart-body">
+                    <% leg.products.forEach(function(product) { %>
+                      <tr>
+                        <th scope="row" style="vertical-align: middle;"><a href="#"><%= product.product.name %></a></th>
+                        <th scope="row" style="vertical-align: middle;"><a href="#"><%= product.product.brand.name %></a></th>
+                        <td style="vertical-align: middle;"><a href="#"><%= product.quantity %></a></td>
+                        <td style="vertical-align: middle;"><a href="#"><%= leg.location.chain.name %> <%= leg.location.name %></a></td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+            </div>
+          </div><!-- End Recent Activity -->
+
+        <% }) %>
+        </div><!-- End Left side columns -->
+
         <!-- Right side columns -->
         <div class="col-lg-4">
 
           <!-- Recent Activity -->
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title"><i class="bi bi-cart"></i> Cart</h5>
+              <h5 class="card-title"><i class="bi bi-cart"></i> Comparison to single trips (including travel cost)</h5>
 
-              <table class="table table-borderless datatable">
+                <table class="table table-borderless datatable">
                 <thead>
-                  <tr>
-                    <th scope="col">Product</th>
+                <tr>
                     <th scope="col">Store</th>
-                  </tr>
+                    <th scope="col">Cost</th>
+                    <th scope="col">Difference</th>
+                </tr>
                 </thead>
-                <tbody id="cart-body">
-                  <% cart.forEach(function(product, rowId) { %>
-                    <tr id="cart-row-<%= rowId %>">
-                      <th scope="row" style="vertical-align: middle;"><a href="#"><%= product.name %></a></th>
-                      <th scope="row" style="vertical-align: middle;"><a href="#"><%= product.brand.name %></a></th>
-                    </tr>
-                  <% }) %>
-                </tbody>
-              </table>
+                  <tbody id="cart-body">
+                    <% singleCosts.forEach(function(scost) { %>
+                      <tr>
+                        <td style="vertical-align: middle;"><%= scost.name %></a></th>
+                        <td style="vertical-align: middle;"><%= (scost.cost / 100).toLocaleString("pt-PT", {style:"currency", currency:"EUR"}) %></a></th>
+                        <td style="vertical-align: middle;">+<%= ((scost.cost - cost) / 100).toLocaleString("pt-PT", {style:"currency", currency:"EUR"}) %></a></th>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
             </div>
           </div><!-- End Recent Activity -->
-
         </div><!-- End Right side columns -->
 
       </div>
-    </section>
+</section>
+
+
+<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5673.762300006121!2d-8.407245237366656!3d40.204068235692866!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd22f982287adc15%3A0x2bf07c996d21f55e!2sPavilh%C3%A3o%20Eng.%20Jorge%20Anjinho%2C%20R.%20Infanta%20Dona%20Maria%2023%2C%203030-329%20Coimbra!5e0!3m2!1spt-PT!2spt!4v1681669486512!5m2!1spt-PT!2spt" width="100%" height="500" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
 
   </main><!-- End #main -->
 

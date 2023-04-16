@@ -50,8 +50,6 @@ app.get('/shopping', async (req: Request, res: Response) => {
         },
     });
 
-    console.log(products);
-
     var cart: any[] = [];
     const session: MySession = req.session;
     if (session.cart) {
@@ -128,10 +126,9 @@ function rec(
     }
 
     const i = curItems.length;
-    const keys = Object.keys(products[i].prices);
-    for (var j = 0; j < keys.length; ++j) {
-        const s = keys[j];
-        const aux = products[i].prices[s] * products[i].quantity;
+    for (var j = 0; j < products[i].prices.length; ++j) {
+        const s = products[i].prices[j].chainId;
+        const aux = products[i].prices[j].price * products[i].quantity;
         curItems.push(s);
         rec(curItems, curCost + aux, products, travelCosts, ansItems, ansTrip, ansCost);
         curItems.pop();
@@ -141,42 +138,90 @@ function rec(
 function costSingle(s: number, products: any[], travelCosts: number[][]) {
     var cost: number = travelCosts[0][s] + travelCosts[s][0];
     products.forEach((product: any) => {
-        cost += product.prices[s] * product.quantity;
+        for (var price of product.prices) {
+            if (price.chainId == s) {
+                cost += price.price * product.quantity;
+                break;
+            }
+        }
     });
     return cost;
 }
 
-function optimize_route(cart: any[]) {
-    const products = [
-        {
-            productId: 1,
-            quantity: 3,
-            prices: {
-                1: 1.39,
-                2: 1.69,
-            },
-        },
-        {
-            productId: 2,
-            quantity: 5,
-            prices: {
-                1: 1.6,
-                2: 0.8,
-            },
+async function optimize_route(cart: any[]) {
+    var sortedCart = structuredClone(cart);
+    sortedCart.sort((a, b) => parseInt(a.id) - parseInt(b.id));
+
+    var last = null;
+    var products = [];
+    for (var product of sortedCart) {
+        if (last === null || product.id !== last.product.id) {
+            last = {
+                product: product,
+                quantity: 1,
+                prices: product.prices,
+            };
+            products.push(last);
+        } else {
+            last.quantity += 1;
         }
-    ];
-    const travelCosts = [[0, 1, 3], [1, 0, 2], [3, 2, 0]]; // Travel cost
+    }
+
+    // TODO: Hardcoding travel costs, improve
+    // TODO: Make travel costs to "locations" instead of "chains"
+    const travelCosts = [[ 0, 40, 30, 10, 20],
+                         [40,  0, 20, 10, 30],
+                         [30, 20,  0, 30, 50],
+                         [10, 10, 30,  0, 20],
+                         [20, 30, 50, 20,  0]]; // Travel cost
     var ansItems: string[] = [];
     var ansTrip: number[] = [];
     var ansCost = [Number.MAX_SAFE_INTEGER];
     rec([], 0, products, travelCosts, ansItems, ansTrip, ansCost);
-    console.log(ansItems);
-    console.log(ansTrip);
-    console.log(ansCost);
-    console.log(costSingle(1, products, travelCosts));
-    console.log(costSingle(2, products, travelCosts));
 
-    return ansItems;
+    // console.log(ansItems);
+    // console.log(ansTrip);
+    // console.log(ansCost);
+    // console.log(costSingle(1, products, travelCosts));
+    // console.log(costSingle(2, products, travelCosts));
+
+    var route = [];
+    for (var chain of ansTrip.slice(1)) {
+        var aux = [];
+        for (var i in ansItems) {
+            if (parseInt(ansItems[i]) == chain) {
+                aux.push(products[i]);
+            }
+        }
+        route.push({
+            chainId: chain,
+            // TODO: hardcoding to first location
+            location: await prisma.location.findFirst({
+                where: { chainId: chain },
+                include: { chain: true }
+            }),
+            products: aux,
+        });
+    }
+
+    var singleCosts: any[] = [];
+    var chains = await prisma.supermarketChain.findMany({ include: { locations: true } });
+    console.log(chains);
+    for (var cchain of chains) {
+        singleCosts.push({
+            name: cchain.name + " " + cchain.locations[0].name,
+            cost: costSingle(cchain.id, products, travelCosts),
+        });
+    }
+    console.log(singleCosts);
+
+    const ret = {
+        route: route,
+        cost: ansCost[0],
+        singleCosts: singleCosts,
+    };
+
+    return ret;
 }
 
 app.get('/route', async (req: Request, res: Response) => {
@@ -186,9 +231,13 @@ app.get('/route', async (req: Request, res: Response) => {
         cart = session.cart;
     }
 
-    var route = optimize_route(cart);
+    var route = await optimize_route(cart);
 
-    res.render('route', { cart: cart, route: route });
+    res.render('route', {
+        route: route.route,
+        cost: route.cost,
+        singleCosts: route.singleCosts,
+    });
 });
 
 app.put('/cart/:id', async (req: Request, res: Response) => {
@@ -207,11 +256,9 @@ app.put('/cart/:id', async (req: Request, res: Response) => {
                 },
             },
             prices: {
-                orderBy: {
-                    price: 'asc',
-                },
                 select: {
                     price: true,
+                    chainId: true,
                 },
             },
         },
@@ -236,10 +283,8 @@ app.delete('/cart/:id', async (req: Request, res: Response) => {
     if (session.cart) {
         var l = session.cart.length;
         for (var i = 0; i < l; ++i) {
-            console.log(session.cart[i].id, id);
             if (session.cart[i].id == id) {
                 session.cart.splice(i, 1);
-                console.log(session.cart);
                 res.status(204);
                 break;
             }

@@ -18,13 +18,13 @@ async function main() {
         where: {
             fullname: {
                 name: 'Arroz Agulha',
-                bid: cigala.id,
+                brandId: cigala.id,
             },
         },
         update: {},
         create: {
             name: 'Arroz Agulha',
-            bid: cigala.id,
+            brandId: cigala.id,
             prices: {},
         },
     });
@@ -59,7 +59,7 @@ async function main() {
                 create: [
                     {
                         price: 139,
-                        pid: arroz.id,
+                        productId: arroz.id,
                     },
                 ],
             }
@@ -96,7 +96,7 @@ async function main() {
                 create: [
                     {
                         price: 169,
-                        pid: arroz.id,
+                        productId: arroz.id,
                     },
                 ],
             }
@@ -123,7 +123,7 @@ async function main() {
                 create: [
                     {
                         price: 169,
-                        pid: arroz.id,
+                        productId: arroz.id,
                     },
                 ],
             }
@@ -155,7 +155,7 @@ async function main() {
                 create: [
                     {
                         price: 169,
-                        pid: arroz.id,
+                        productId: arroz.id,
                     },
                 ],
             }

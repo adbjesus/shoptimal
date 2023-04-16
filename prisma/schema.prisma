@@ -13,11 +13,11 @@ datasource db {
 model Product {
   id       Int       @id @default(autoincrement())
   name     String    @db.VarChar(255)
-  brand    Brand     @relation(fields: [bid], references: [id])
-  bid      Int
+  brand    Brand     @relation(fields: [brandId], references: [id])
+  brandId  Int
   prices   Price[]
 
-  @@unique([name, bid], name: "fullname")
+  @@unique([name, brandId], name: "fullname")
 }
 
 model Brand {
@@ -38,15 +38,15 @@ model Location {
   name     String            @db.VarChar(255) @unique
   lat      Float
   lon      Float
-  chain    SupermarketChain  @relation(fields: [cid], references: [id])
-  cid      Int
+  chain    SupermarketChain  @relation(fields: [chainId], references: [id])
+  chainId  Int
 }
 
 model Price {
   id           Int         @id @default(autoincrement())
   price        Int
-  pid          Int      
-  product      Product     @relation(fields: [pid], references: [id])
-  sid          Int
-  chain        SupermarketChain @relation(fields: [sid], references: [id])
+  product      Product     @relation(fields: [productId], references: [id])
+  productId    Int      
+  chain        SupermarketChain @relation(fields: [chainId], references: [id])
+  chainId      Int
 }
